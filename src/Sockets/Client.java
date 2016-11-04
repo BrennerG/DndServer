@@ -21,7 +21,7 @@ public class Client {
 
     public static void main(String[] args) {
         String ip = "localhost";
-        int port = 1666;
+        int port = 1500;
 
         Client client = new Client(ip, port);
         client.connect();
@@ -58,6 +58,6 @@ public class Client {
         } catch (IOException e) {
             System.err.println("IOException");
         }
-
     }
+
 }

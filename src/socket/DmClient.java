@@ -1,4 +1,4 @@
-package Sockets;
+package socket;
 
 public class DmClient {
 

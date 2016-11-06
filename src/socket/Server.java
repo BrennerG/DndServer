@@ -1,4 +1,5 @@
 package socket;
+import controller.MasterController;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,12 +16,16 @@ public class Server implements Runnable {
     protected Thread runningThread = null;
     private boolean running = true;
 
+    MasterController masterController;
+
     public Server(int port){
         if( port != 0 ){
             this.port = port;
         } else {
             this.port = 1500;
         }
+
+        masterController = new MasterController();
     }
 
     public void run(){
@@ -39,7 +44,7 @@ public class Server implements Runnable {
              } catch( IOException e ){
                  System.out.println("IOException_Server.run()");
              }
-             this.executor.execute(new Session(clientSocket));
+             this.executor.execute(new Session(clientSocket,masterController));
          }
         this.executor.shutdown();
     }

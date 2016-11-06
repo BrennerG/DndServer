@@ -16,18 +16,23 @@ public class Client {
     OutputStream sOut;
     InputStream sIn;
     ObjectOutputStream oos;
+    DataOutputStream dos;
     DataInputStream dis;
     private static Scanner scanner = null;
     private static Invoker invoker = null;
+    private static String playerName;
+    private static int playerId;
 
     public Client(String ipAdr, int port) {
         this.ip = ipAdr;
         this.port = port;
+        this.scanner  = new Scanner(System.in).useDelimiter("//n");
     }
 
     public Client( String ipAdr ) {
         this.ip = ipAdr;
         this.port = 1500;
+        this.scanner  = new Scanner(System.in).useDelimiter("//n");
     }
 
     public static void main(String[] args) {
@@ -35,15 +40,12 @@ public class Client {
         Client client = new Client( ip );
         client.connect();
 
-        scanner  = new Scanner(System.in).useDelimiter("//n");
-        invoker = new Invoker();
+        invoker = new Invoker( playerName );
         String msg = "default";
         Command sendCommand = null;
 
         while( !msg.equals("quit") ){
-            System.out.println("\nstarting Client Magic");
             msg = scanner.nextLine();
-
             try {
                 sendCommand = invoker.interpret( msg );
 
@@ -52,7 +54,6 @@ public class Client {
             }
 
             try {
-                System.out.println("Writing Command");
                 client.oos.writeObject( sendCommand );
                 client.oos.flush();
 
@@ -67,14 +68,18 @@ public class Client {
 
     public void connect() {
         try {
-            System.out.println("RUN_Client.connect()");
             socket = new Socket(ip, port);
             sOut = socket.getOutputStream();
             sIn = socket.getInputStream();
             oos = new ObjectOutputStream( sOut );
+            dos = new DataOutputStream(sOut);
             dis = new DataInputStream( sIn );
-            System.out.println("IOStreamsINITed_Client.connect()");
-            System.out.println( dis.readUTF() );
+
+            System.out.println( dis.readUTF() ); //name your character
+            playerName = scanner.nextLine();
+            dos.writeUTF( playerName );
+            System.out.println( dis.readUTF() ); //welcome
+            playerId =  Integer.parseInt((dis.readUTF()));
 
         } catch (IOException e) {
             System.err.println("IOException_Client.connect()");

@@ -7,16 +7,17 @@ import java.util.ArrayList;
 public class Invoker {
 
     private ArrayList<Command> cmdList;
+    private String commanderName;
 
-    public Invoker() {
+    public Invoker( String commanderName ) {
         cmdList = new ArrayList<Command>();
         cmdList.add( 0, new Say(null) );
+        cmdList.add( 1, new Players() );
+        this.commanderName = commanderName;
     }
 
     public Command interpret(String msg) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-
-        System.out.println("RUN_Invoker.interpret( " + msg + " )");
-
+        //System.out.println("RUN_Invoker.interpret( " + msg + " )");
         String[] words = msg.split("//s+");
         String searchName = null;
         Class<?> finalCommand;
@@ -40,9 +41,9 @@ public class Invoker {
             returnCommand = (Command) constructor.newInstance(words[1]);
         } else {
             returnCommand = new Say( msg );
-            System.out.println( "RETURN_Invoker.interpret( Say ) = " + returnCommand.stringOut() );
         }
 
+        returnCommand.setCommander( commanderName );
         return returnCommand;
     }
 }

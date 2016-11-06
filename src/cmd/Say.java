@@ -15,6 +15,6 @@ public class Say extends Command {
     }
 
     public String stringOut() {
-       return ("[" + commander + "] " + msg);
+       return ("[" + commander + "]\t " + msg);
     }
 }

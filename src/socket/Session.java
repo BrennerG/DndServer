@@ -1,5 +1,7 @@
 package socket;
 import cmd.Command;
+import controller.MasterController;
+import model.Player;
 import java.io.*;
 import java.net.Socket;
 
@@ -14,26 +16,27 @@ public class Session extends Thread {
     DataInputStream dis;
     ObjectInputStream ois;
 
-    public Session(Socket socket) {
-        clientSocket = socket;
-    }
+    MasterController master;
 
-    public void run() {
+    public Session(Socket clientSocket,MasterController master) {
+        this.clientSocket = clientSocket;
+        this.master = master;
+
         try{
            connect();
 
         } catch (IOException e){
-            System.err.println("IOException_Session.run()-connect()");
+            System.err.println("IOException_Session.Session()-connect()");
         }
+    }
 
+    public void run() {
         Command readCommand = null;
 
-        //Server magic
         while (running) {
-            System.out.println("\nstarting Server magic");
             try {
                 readCommand = (Command) ois.readObject();
-                System.out.println("Command received: " + readCommand.getName());
+                //System.out.println("Command received: " + readCommand.getName());
                 System.out.println( readCommand.stringOut() );
 
             }catch (ClassNotFoundException e) {
@@ -53,18 +56,24 @@ public class Session extends Thread {
     }
 
     public void connect() throws IOException {
-            if( clientSocket == null ){
-                System.out.println("clientSocketNull_Session.run()");
-                throw new IOException();
-            }
-            sOut = clientSocket.getOutputStream();
-            sIn = clientSocket.getInputStream();
-            dos = new DataOutputStream(sOut);
-            dos.flush();
-            dis = new DataInputStream(sIn);
-            ois = new ObjectInputStream(sIn);
-            System.out.println("IOStreams initiiert");
-            dos.writeUTF("Welcome to the DnDServer");
+        if( clientSocket == null ){
+            System.out.println("clientSocketNull_Session.run()");
+            throw new IOException();
+        }
+        sOut = clientSocket.getOutputStream();
+        sIn = clientSocket.getInputStream();
+        dos = new DataOutputStream(sOut);
+        dos.flush();
+        dis = new DataInputStream(sIn);
+        ois = new ObjectInputStream(sIn);
+        System.out.println("IOStreams initiiert");
+
+        //Das Stueck sollte in eine eigene character creation methode von pm - vllt
+        Player helpPlayer;
+        dos.writeUTF( "Please name your character:" );
+        helpPlayer = master.getPm().createPlayer(dis.readUTF()); //read name
+        dos.writeUTF( "welcome, " + helpPlayer.getName() + ", you are player#" + helpPlayer.getId() );
+        dos.writeUTF( Integer.toString(helpPlayer.getId()) );
     }
 
     public void close() throws IOException {
